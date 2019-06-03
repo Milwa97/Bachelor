@@ -11,7 +11,6 @@ from datetime import datetime
 from copy import deepcopy
 from math import sqrt
 
-
 N_EMPTY  = 1
 X_TUMOR = 2     
 Y_CYTOTOXIC = 3
