@@ -109,9 +109,9 @@ k2_slide_bar = widgets.FloatSlider(
 
 lambd_slide_bar = widgets.FloatSlider(   
                             min=0.01,
-                            max=0.1,
-                            step=0.005,
-                            value=0.01,
+                            max=1,
+                            step=0.01,
+                            value=0.3,
                             description='\u03BB:',
                             disabled=False,
                             continuous_update=True,

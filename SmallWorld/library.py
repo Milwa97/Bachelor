@@ -268,7 +268,7 @@ class Net():
         tmp = deepcopy(self)
         tmp.reset()
         
-        for x in range (0, self.size_x ):
+        for x in range (0, self.size_x):
             for y in range(0, self.size_y):                
                 if (self.cells[x][y].get_state() == P_DEAD):
                     tmp.cells[x][y].set_state( N_EMPTY )
@@ -422,7 +422,7 @@ class Net():
     
     def print_my_net(self):      
         cmap = LinearSegmentedColormap.from_list('myCMAP1',['gray', 'red', 'yellow', 'blue',  'purple', 'black'], N = 6)
-        data = np.zeros([self.size_x, self.size_y])
+        data = np.zeros([self.size_x+1, self.size_y +1 ])
         
         for rows in self.cells:
             for cell in rows:

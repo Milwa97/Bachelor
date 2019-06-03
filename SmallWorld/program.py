@@ -22,12 +22,12 @@ def get_params():
     lambd = lambd_slide_bar.value
     beta = beta_slide_bar.value    
     n = n_Text.value 
-    k= k_Text.value 
+    k = k_Text.value 
     author = str(author_Text.value)
     date = str(date_Picker.value)
     dist = str(distribution_button.value)
-    rm = bool(dead_cells_remove_button.value)
     savefile = savefile_Text.value
+    scale = scale_slide_bar.value
     
     if (sampling_Buttons.value) == str("Dense"):
         m_range = [0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50]
@@ -36,17 +36,17 @@ def get_params():
     else:
         m_range = [0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100] 
            
-    return size_x, size_y, c, init_X, init_Y, k1, k2,beta, lambd, n_links, n, k, author, date, dist, rm, m_range, savefile
+    return size_x, size_y, c, init_X, init_Y, k1, k2,beta, lambd, n_links, n, k, scale, author, date, dist, m_range, savefile
 
 ################################################################################################################
 ################################################################################################################
 
-def get_header(size_x, size_y, c, init_X, init_Y, k1, k2, beta, lambd, n_links, n, k, author, date, dist, rm, m_range):
+def get_header(size_x, size_y, c, init_X, init_Y, k1, k2, beta, lambd, n_links, n, k,scale, author, date, dist, m_range):
     
     line0 = "author:\t{0:}\n".format(author)
     line1 = "date:\t{0:}\n".format(date)
     line2 = "concentration = {0:}, size: {1:}x{2:}\n".format(c, size_x, size_y)
-    line3 = "distribution: {0:}, remove dead cells: {1:}\n".format(dist, rm)
+    line3 = "distribution: {0:}\tscale: {1:}\n".format(dist, scale)
     line4 = "init_number_X = {0:}, init_number_Y = {1:}\n".format(init_X, init_Y)
     line5 = "k1 = {0:}, k2 = {1:}, beta = {2:}, lambd = {3:}\n".format(k1,k2,beta,lambd)
     line6 = "number of simulations k = {0:}, number of iterations n = {1:}\n".format(k, n)
@@ -58,9 +58,9 @@ def get_header(size_x, size_y, c, init_X, init_Y, k1, k2, beta, lambd, n_links, 
 ################################################################################################################
 ################################################################################################################
 
-def build(size_x, size_y, init_X, init_Y, k1, k2, beta, lambd, n_links, n, m_range):
-    
-    net = Net(size_x, size_y, init_X , init_Y, 
+def build(size_x, size_y, init_X, init_Y, k1, k2, beta, lambd, scale, dist, n_links, n, m_range):
+       
+    net = Net(size_x, size_y, init_X , init_Y, scale = scale, dist = dist,
               k1 = k1, k2 = k2, beta = beta, lambd = lambd, n_links = n_links)   
     net.setup()
     net.init()
@@ -69,7 +69,6 @@ def build(size_x, size_y, init_X, init_Y, k1, k2, beta, lambd, n_links, n, m_ran
     n_range = []
     t = 0
     
-    print("\n\nNEW NET")
     print("initial range", net.get_range(), "before:" )
     net.print_my_net()
     
@@ -79,12 +78,8 @@ def build(size_x, size_y, init_X, init_Y, k1, k2, beta, lambd, n_links, n, m_ran
             n_range.append(i)
             t = t+1
     
-    print("after")
     net.print_my_net() #
-    print("Current range", net.get_range() ) #
-    print("n_range", n_range) #
     
-
     return n_range, net.get_range()        
 
 ################################################################################################################
@@ -112,24 +107,27 @@ def run_simulation():
     run_simulation()
     
     Run k simulations with the same entry parameters and save the results (FTP for each simulation) to the file. All the parameters are taken from GUI. This function does not include graphics.
-
+    
     """
     
-    size_x, size_y, c, init_X, init_Y, k1, k2, beta, lambd, n_links, n, k, author, date, dist, rm, m_range, savefile = get_params()
+    size_x, size_y, c, init_X, init_Y, k1, k2,beta, lambd, n_links, n, k, scale, author, date, dist, m_range, savefile= get_params()
     
-    header = get_header(size_x, size_y, c, init_X, init_Y, k1, k2, beta, lambd, n_links, n, k, author, date, dist, rm, m_range)
+    header = get_header(size_x, size_y, c, init_X, init_Y, k1, k2, beta, lambd, n_links, n, k,scale, author, date, dist, m_range)
     
     n_range_tab = []
     max_range_tab = []
     
     for i in range(k):
-        n_range, max_range = build(size_x, size_y, init_X, init_Y, k1, k2, beta, lambd, n_links, n, m_range)
+        n_range, max_range = build(size_x, size_y, init_X, init_Y, k1, k2, beta, lambd, scale, dist, n_links, n, m_range)
+        
         n_range_tab.append(n_range)
         max_range_tab.append(max_range)
             
     save(header, savefile, n_range_tab)
     
-    return max_range_tab
+    print("\nMax range tab:\n", max_range_tab)
+    
+    return 
 
 ################################################################################################################
 ################################################################################################################
@@ -141,9 +139,10 @@ def single_network_diagnosis():
     Run a simulation for a single network and get a full history of the network evolution, including network picture after each iteration. The parameters for the network are taken from GUI.
 
     """
-    size_x, size_y, c, init_X, init_Y, k1, k2, beta, lambd, n_links, n, k, author, date, dist, rm, m_range, savefile = get_params()
+    size_x, size_y, c, init_X, init_Y, k1, k2,beta, lambd, n_links, n, k, scale, author, date, dist, m_range, savefile= get_params()
      
-    net = Net(size_x, size_y, init_X , init_Y,k1 = k1, k2 = k2, beta = beta, lambd = lambd, n_links = n_links)   
+    net =  Net(size_x, size_y, init_X , init_Y, scale = scale, dist = dist,
+              k1 = k1, k2 = k2, beta = beta, lambd = lambd, n_links = n_links)
     net.setup()
     net.init()
     
