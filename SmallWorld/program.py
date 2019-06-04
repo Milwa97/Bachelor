@@ -27,16 +27,20 @@ def get_params():
     date = str(date_Picker.value)
     dist = str(distribution_button.value)
     savefile = savefile_Text.value
+    savefile_max = savefile_max_Text.value
     scale = scale_slide_bar.value
+    limit = limit_Text.value
     
     if (sampling_Buttons.value) == str("Dense"):
         m_range = [0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50]
     elif (sampling_Buttons.value) == str("Regular"):
         m_range = [0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60,63,66,69,72,75,78,81,84,87,90]     
     else:
-        m_range = [0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100] 
+        #m_range = [0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100] 
+        m_range = [0,5,10,20,30,40,50,60,70,80,90,100] 
+
            
-    return size_x, size_y, c, init_X, init_Y, k1, k2,beta, lambd, n_links, n, k, scale, author, date, dist, m_range, savefile
+    return size_x, size_y, c, init_X, init_Y, k1, k2,beta, lambd, n_links, n, k, scale, author, date, dist, m_range, savefile, savefile_max, limit
 
 ################################################################################################################
 ################################################################################################################
@@ -58,7 +62,7 @@ def get_header(size_x, size_y, c, init_X, init_Y, k1, k2, beta, lambd, n_links, 
 ################################################################################################################
 ################################################################################################################
 
-def build(size_x, size_y, init_X, init_Y, k1, k2, beta, lambd, scale, dist, n_links, n, m_range):
+def build(size_x, size_y, init_X, init_Y, k1, k2, beta, lambd, scale, dist, n_links, n, m_range, limit):
        
     net = Net(size_x, size_y, init_X , init_Y, scale = scale, dist = dist,
               k1 = k1, k2 = k2, beta = beta, lambd = lambd, n_links = n_links)   
@@ -73,12 +77,16 @@ def build(size_x, size_y, init_X, init_Y, k1, k2, beta, lambd, scale, dist, n_li
     net.print_my_net()
     
     for i in range(n):
-        net.update()               
+        net.update()            
         if (m_range[t] <  net.get_range()):
             n_range.append(i)
-            t = t+1
+            t = t+1          
+        if  net.get_range() > limit**2 :
+            print("END OF LIMIT")
+            break
+        
     
-    net.print_my_net() #
+    net.print_my_net()
     
     return n_range, net.get_range()        
 
@@ -95,7 +103,25 @@ def save(header, savefile, data):
         file.write('\n')   
         
     file.close()
+    print("Saved to file:\t", savefile)
     
+    return
+
+################################################################################################################
+################################################################################################################
+
+def save_maximum(header, savefile, data):
+
+    file = open(savefile, 'w')
+    file.write(header) 
+
+    for row in data:
+        file.write(str(row)) 
+        file.write('\n')   
+        
+    file.close()
+    print("Saved to file:\t", savefile)
+
     return
 
 ################################################################################################################
@@ -110,20 +136,23 @@ def run_simulation():
     
     """
     
-    size_x, size_y, c, init_X, init_Y, k1, k2,beta, lambd, n_links, n, k, scale, author, date, dist, m_range, savefile= get_params()
+    size_x, size_y, c, init_X, init_Y, k1, k2,beta, lambd, n_links, n, k, scale, author, date, dist, m_range, savefile, savefile_max, limit = get_params()
     
-    header = get_header(size_x, size_y, c, init_X, init_Y, k1, k2, beta, lambd, n_links, n, k,scale, author, date, dist, m_range)
-    
+    print("in rum: limit = ", limit)
     n_range_tab = []
     max_range_tab = []
     
     for i in range(k):
-        n_range, max_range = build(size_x, size_y, init_X, init_Y, k1, k2, beta, lambd, scale, dist, n_links, n, m_range)
+        n_range, max_range = build(size_x, size_y, init_X, init_Y, k1, k2, beta, lambd, scale, dist, n_links, n, m_range, limit)
         
         n_range_tab.append(n_range)
         max_range_tab.append(max_range)
+
+
+    header = get_header(size_x, size_y, c, init_X, init_Y, k1, k2, beta, lambd, n_links, n, k,scale, author, date, dist, m_range)
             
     save(header, savefile, n_range_tab)
+    save_maximum(header, savefile_max, max_range_tab)
     
     print("\nMax range tab:\n", max_range_tab)
     

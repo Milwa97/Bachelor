@@ -154,9 +154,21 @@ k_Text = widgets.BoundedIntText(
                     readout_format='d',
                     disabled=False)
 
+limit_Text = widgets.BoundedIntText(
+                    value=50,
+                    min=0,
+                    max=100,
+                    step=5,
+                    button_style = 'info',
+                    description='limit',
+                    readout=True,
+                    readout_format='d',
+                    disabled=False)
+
+
 sampling_Buttons = widgets.Dropdown(
             options=['Dense', 'Regular', 'Sparse'],
-            value = 'Regular',
+            value = 'Sparse',
             description='sampling:',
             disabled=False,
             width = 10,
@@ -214,6 +226,13 @@ savefile_Text = widgets.Text(
                     readout_format='s',
                     disabled=False)
 
+savefile_max_Text = widgets.Text(
+                    value='samplefile_max.csv',
+                    description='file name:',
+                    readout=True,
+                    readout_format='s',
+                    disabled=False)
+
 ################################################################################################################
 ################################################################################################################
 
@@ -232,10 +251,10 @@ start_Button = widgets.ToggleButton(
 
 body1 = widgets.VBox([ X_number_Text, nlinks_Text, sizex_Text, sizey_Text])
 body2 = widgets.VBox([ distribution_button, scale_slide_bar, concentration_slide_bar] )
-body4 = widgets.VBox([ n_Text, k_Text, sampling_Buttons])
+body4 = widgets.VBox([ n_Text, k_Text, limit_Text, sampling_Buttons])
 
 tab3 = widgets.VBox([ k1_slide_bar, k2_slide_bar, lambd_slide_bar, beta_slide_bar] )
-tab5 = widgets.VBox([ author_Text, date_Picker, savefile_Text])
+tab5 = widgets.VBox([ author_Text, date_Picker, savefile_Text, savefile_max_Text])
  
 tab1 = widgets.HBox([ body1, html1])
 tab2 = widgets.HBox([ body2, html2])

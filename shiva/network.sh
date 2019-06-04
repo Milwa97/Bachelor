@@ -2,12 +2,12 @@
 
 #PBS -N network_mlewandowska
 
-#PBS -l walltime=5:30:30
+#PBS -l cput=10:00:30
 
 #PBS -q normal
 
 #PBS -m abe
 
-cd $home/neofelia/shiva/
+cd ${HOME}/shiva/
 echo 'Running ...'
 python shiva.py

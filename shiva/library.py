@@ -95,7 +95,8 @@ class Range():
 ########################################################################################################################
 
 class Net():
-    def __init__(self,xx,yy,initnumX=0,initnumY=0,k1=0,k2=0,beta=0,lambd=0,dist="Gauss",scale = 1, n_links = 0): 
+    def __init__(self,xx,yy,initnumX=0,initnumY=0,k1=0,k2=0,beta=0,lambd=0,dist="Gauss",
+                 scale = 1, n_links = 0): 
        
         self.size_x = xx
         self.size_y = yy
