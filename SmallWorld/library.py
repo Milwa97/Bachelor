@@ -440,28 +440,28 @@ class Net():
         n = len(self.table_X)
         time = np.arange(n)        
         
-        fig, axs = plt.subplots(nrows = 5, ncols = 1, sharex = True, figsize = (30,20))
+        fig, axs = plt.subplots(nrows = 4, ncols = 1, sharex = True, figsize = (20,15))
         
         for ax in axs:
             ax.yaxis.label.set_size(30)
-            ax.tick_params(grid_color='purple', grid_alpha=0.5, labelcolor = "black", labelsize = 25)      
+            ax.tick_params(grid_color='purple', grid_alpha=0.5, labelcolor = "black", labelsize = 24)      
             ax.grid(True)
             
-        axs[0].plot(time, self.table_X, color = "purple") 
-        axs[0].set_ylabel('tumor cells')
-        axs[1].plot(time, self.table_Y, color = "purple") 
-        axs[1].set_ylabel('cytotoxic cells')        
-        axs[2].plot(time, self.table_ZX, color = "purple") 
-        axs[2].set_ylabel('ZX cells')
-        axs[3].plot(time, self.table_ZY, color = "purple") 
-        axs[3].set_ylabel('ZY cells')
-        axs[4].plot(time, self.table_P, color = "purple") 
-        axs[4].set_ylabel('Dead cells')
+        axs[0].plot(time, self.table_X, color = "black") 
+        axs[0].set_ylabel('tumor cells\n')
+        axs[1].plot(time, self.table_Y, color = "black") 
+        axs[1].set_ylabel('cytotoxic cells\n')        
+        #axs[2].plot(time, self.table_ZX, color = "purple") 
+        #axs[2].set_ylabel('ZX cells')
+        axs[2].plot(time, self.table_ZY, color = "black") 
+        axs[2].set_ylabel('Z-complex cells\n')
+        axs[3].plot(time, self.table_P, color = "black") 
+        axs[3].set_ylabel('Dead cells\n')
             
             
-        axs[4].set_xlim(0, n)
-        axs[4].set_xlabel('time') 
-        axs[4].xaxis.label.set_size(30)       
+        axs[3].set_xlim(0, n)
+        axs[3].set_xlabel('\ntime') 
+        axs[3].xaxis.label.set_size(30)       
 
         fig.tight_layout()      
         plt.show()    

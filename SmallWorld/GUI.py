@@ -7,7 +7,7 @@ import ipywidgets as widgets
 ################################################################################################################
 ################################################################################################################
 X_number_Text = widgets.BoundedIntText(
-                    value=20,
+                    value=100,
                     min=1,
                     max=100,
                     step=1,
@@ -17,7 +17,7 @@ X_number_Text = widgets.BoundedIntText(
                     disabled=False)
 
 sizex_Text = widgets.BoundedIntText(
-                    value=50,
+                    value=100,
                     min=5,
                     max=200,
                     step=5,
@@ -27,7 +27,7 @@ sizex_Text = widgets.BoundedIntText(
                     disabled=False)
 
 sizey_Text = widgets.BoundedIntText(
-                    value=50,
+                    value=100,
                     min=5,
                     max=200,
                     step=5,
@@ -37,7 +37,7 @@ sizey_Text = widgets.BoundedIntText(
                     disabled=False)
 
 nlinks_Text = widgets.BoundedIntText(
-                    value=0,
+                    value=100,
                     min=0,
                     max=200,
                     step=1,
@@ -51,7 +51,7 @@ nlinks_Text = widgets.BoundedIntText(
 distribution_button = widgets.Dropdown(
                             options=['Gauss', 'Laplace'],
                             description='Distribution:',
-                            value = 'Gauss',
+                            value = 'Laplace',
                             readout = True,
                             readout_format = 's',
                             disabled= False )
@@ -74,7 +74,7 @@ scale_slide_bar = widgets.FloatSlider(
                             min=0,
                             max=5,
                             step=0.1,
-                            value= 0.8,
+                            value= 1.3,
                             description='scale:',
                             disabled=False,
                             continuous_update=True,
@@ -132,7 +132,7 @@ beta_slide_bar = widgets.FloatSlider(
                             readout_format='.4f')
 
 n_Text = widgets.BoundedIntText(
-                    value=20,
+                    value=1000,
                     min=1,
                     max=20000,
                     step=1,
@@ -143,7 +143,7 @@ n_Text = widgets.BoundedIntText(
                     disabled=False)
 
 k_Text = widgets.BoundedIntText(
-                    value=1,
+                    value=20,
                     min=1,
                     max=1000,
                     step=1,
@@ -155,7 +155,7 @@ k_Text = widgets.BoundedIntText(
                     disabled=False)
 
 limit_Text = widgets.BoundedIntText(
-                    value=50,
+                    value=60,
                     min=0,
                     max=100,
                     step=5,
