@@ -1,0 +1,14 @@
+author:	Mlewandowska
+date:	2019-06-04 16:56	2019-06-04 16:56
+concentration = 0.15, size: 100x100
+distribution: Laplace	scale: 1.4
+init_number_X = 100, init_number_Y = 1500
+k1 = 1, k2 = 1, beta = 0, lambd = 0.3
+number of simulations k = 5, number of iterations n = 5
+range sampling: [0, 5, 10, 20, 30, 40, 50, 60]
+
+3044
+2836
+3328
+3445
+193

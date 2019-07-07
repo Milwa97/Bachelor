@@ -5,27 +5,30 @@ from program import *
 
 if __name__ == '__main__':
 
+    print("SYS",sys.argv)
     size_x = 100
     size_y = 100    
-    n = 100
-    k = 2
-    n_links = 0   
+    n = 5000
+    k = 100
+    n_links = int(sys.argv[1])
+
+    k1 = 1
+    k2 = 1
+    lambd = float(sys.argv[2])
+    beta = 0    
     
-    c = 0.15         
+    c = float(sys.argv[3])         
     init_X = 100       
     init_Y = int(size_x * size_y * c)
     scale = 1.4
     dist = "Laplace"
     author = "Mlewandowska"   
     
-    savefile = "sample.csv" 
-    savefile_max = "sample_max.csv"
+    savefile = sys.argv[4] 
+    savefile_max = sys.argv[5]
     limit = 50
     
-    k1 = 1
-    k2 = 1
-    lambd = 0.3
-    beta = 0 
+  
 
     start_date = datetime.now().strftime("%Y-%m-%d %H:%M")
 
