@@ -36,19 +36,34 @@ if __name__ == '__main__':
     
         
     n_range_tab = []
-    max_range_tab = []
+    X_tab = []
+    Y_tab = []
+    ZX_tab = []
+    P_tab = []
     
     for i in range(k):
         print("\nNet:\t{0:} / {1:}".format(i+1, k) )
-        n_range,max_range = build(size_x, size_y, init_X, init_Y, k1, k2, beta, lambd, scale, dist, n_links, n, m_range, limit)
+        n_range, table_X, table_Y, table_ZX, table_P = build(size_x, size_y, init_X, init_Y, k1, k2, beta, lambd, scale, dist, n_links, n, m_range, limit)
         n_range_tab.append(n_range)
-        max_range_tab.append(max_range)
+        X_tab.append(table_X)
+        Y_tab.append(table_Y)
+        ZX_tab.append(table_ZX)
+        P_tab.append(table_P)
     
     end_date = datetime.now().strftime("%Y-%m-%d %H:%M")
     
     header = get_header(size_x, size_y, c, init_X, init_Y, k1, k2, beta, lambd, n_links, n, k, dist, scale,
                 m_range, author, start_date, end_date)   
     
-
+    
+    savefile_X = str(savefile + "_X")
+    savefile_Y = str(savefile + "_Y")
+    savefile_ZX = str(savefile + "_ZX")
+    savefile_P = str(savefile + "_P")
+    
     save(header, savefile, n_range_tab)
-    save_maximum(header, savefile_max, max_range_tab)
+    
+    save(header, savefile, n_range_tab)
+    save(header, savefile, n_range_tab)
+
+    #save_maximum(header, savefile_max, max_range_tab) - chan

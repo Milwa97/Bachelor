@@ -42,9 +42,8 @@ def build(size_x, size_y, init_X, init_Y, k1, k2, beta, lambd, scale, dist, n_li
             t = t+1
         if  net.get_range() > limit**2 :
             break
-        
-        
-    return n_range, net.get_range()
+ 
+    return n_range, net.table_X, net.table_Y, net.table_ZX, net.table_P
 
 ################################################################################################################
 ################################################################################################################
