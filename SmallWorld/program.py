@@ -39,7 +39,7 @@ def get_params():
         #m_range = [0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100] 
         m_range = [0,5,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160] 
 
-     
+    
     print("nlinks = ", n_links)
     print("Xinit = ", init_X)
     print('c = ', c)
@@ -82,7 +82,9 @@ def build(size_x, size_y, init_X, init_Y, k1, k2, beta, lambd, scale, dist, n_li
     net.print_my_net()
     
     for i in range(n):
-        net.update()            
+        net.update() 
+        net.print_my_net()
+        
         if (m_range[t] <  net.get_range()):
             n_range.append(i)
             t = t+1          
@@ -90,11 +92,9 @@ def build(size_x, size_y, init_X, init_Y, k1, k2, beta, lambd, scale, dist, n_li
             while(len(n_range)!= len(m_range) ):
                 n_range.append(i)
             break
-        
-    
-    net.print_my_net()
-    
-    return n_range, net.get_range()        
+
+            
+    return n_range, net.table_X, net.table_Y, net.table_ZX, net.table_ZY, net.table_P, net.table_lambd, net.get_range()       
 
 ################################################################################################################
 ################################################################################################################
@@ -147,53 +147,44 @@ def run_simulation():
     n_range_tab = []
     max_range_tab = []
     
-    for i in range(k):
-        n_range, max_range = build(size_x, size_y, init_X, init_Y, k1, k2, beta, lambd, scale, dist, n_links, n, m_range, limit)
-        n_range_tab.append(n_range)
-        max_range_tab.append(max_range)
-
+    n_range_tab = []
+    X_tab = []
+    Y_tab = []
+    ZX_tab = []
+    ZY_tab = []
+    P_tab = []
+    lambd_tab = []
+    
+    n_range, table_X, table_Y, table_ZX, table_ZY, table_P, table_lambd, max_range =  build(size_x, size_y, init_X, init_Y, k1, k2, beta, lambd, scale, dist, n_links, n, m_range, limit)
+        
+    n_range_tab.append(n_range)
+    X_tab.append(table_X)
+    Y_tab.append(table_Y)
+    ZX_tab.append(table_ZX)
+    ZY_tab.append(table_ZX)
+    P_tab.append(table_P)
+    lambd_tab.append(table_lambd)
+    max_range_tab.append(max_range)
 
     header = get_header(size_x, size_y, c, init_X, init_Y, k1, k2, beta, lambd, n_links, n, k,scale, author, date, dist, m_range)
             
-    save(header, savefile, n_range_tab)
-    save_maximum(header, savefile_max, max_range_tab)
+    savefile_n = str(savefile + ".txt")
+    savefile_X = str(savefile + "_X.txt")
+    savefile_Y = str(savefile + "_Y.txt")
+    savefile_ZX = str(savefile + "_ZX.txt")
+    savefile_ZY = str(savefile + "_ZY.txt")
+    savefile_P = str(savefile + "_P.txt")
+    savefile_lambd = str(savefile + "_lambd.txt")
+
+    save(header, savefile_n, n_range_tab)  
+    save(header, savefile_X, X_tab)
+    save(header, savefile_Y, Y_tab)
+    save(header, savefile_ZX, ZX_tab)
+    save(header, savefile_ZY, ZY_tab)
+    save(header, savefile_P, P_tab)
+    save(header, savefile_lambd, lambd_tab)
     
     print("\nMax range tab:\n", max_range_tab)
     
     return 
 
-################################################################################################################
-################################################################################################################
-def single_network_diagnosis(): 
-    
-    """
-    single_network_diagnosis()
-    
-    Run a simulation for a single network and get a full history of the network evolution, including network picture after each iteration. The parameters for the network are taken from GUI.
-
-    """
-    size_x, size_y, c, init_X, init_Y, k1, k2,beta, lambd, n_links, n, k, scale, author, date, dist, m_range, savefile, savefile_max, limit = get_params()
-     
-    net =  Net(size_x, size_y, init_X , init_Y, scale = scale, dist = dist,
-              k1 = k1, k2 = k2, beta = beta, lambd = lambd, n_links = n_links)
-    net.setup()
-    net.init()
-    
-    m_range = np.power(m_range, 2)
-    n_range = []
-    t = 0
-    net.print_my_net() 
-    for i in range(n):
-        net.print_my_net()
-        net.update()              
-        if (m_range[t] <  net.get_range()):
-            n_range.append(i)
-            t = t+1
-            
-    net.print_my_net()
-    net.diagnostics()
-    net.show()
-    
-    return
-################################################################################################################
-################################################################################################################

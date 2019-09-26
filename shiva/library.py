@@ -11,26 +11,40 @@ class Cell():
         self.coordinate_x = xx
         self.coordinate_y = yy
         self.state = state                 # current state
+        self.next_state = state
         self.complex = np.array([xx, yy])  # only in this cell is in a complex with the other one. complex = coordinates[x][y]    
         self.link = np.array([xx, yy]) 
+        self.not_in_bag = True
     
     def __repr__(self):
-        return repr((self.coordinate_x, self.coordinate_y, self.state ))
-  
+        return repr((self.coordinate_x, self.coordinate_y, self.state, self.complex, self.link ))
+      
+    def is_not_in_bag(self):
+        return self.not_in_bag
+    
+    def put_in_bag(self):
+        self.not_in_bag = False
+        
     def get_coordinates(self):
         return np.array( [self.coordinate_x, self.coordinate_y] )
                         
     def is_empty(self):
-        return (self.state == N_EMPTY)
+        return (self.state == N_EMPTY and self.next_state == N_EMPTY)
     
     def get_state(self):
         return self.state   
+    
+    def get_next_state(self):
+        return self.next_state   
                
     def set_state(self, new_state):
-        if (new_state < 1 or new_state > 7):
-            print("ERROR VALUE:\n {0:} is not a type of cell".format(new_state))
-            return
         self.state = new_state
+        
+    def set_next_state(self, new_state):
+        self.next_state = new_state
+    
+    def update(self):
+        self.state = self.next_state
                         
     def is_single(self):
         return (self.complex[0] == self.coordinate_x and self.complex[1] ==  self.coordinate_y)  
@@ -97,7 +111,8 @@ class Range():
 class Net():
     def __init__(self,xx,yy,initnumX=0,initnumY=0,k1=0,k2=0,beta=0,lambd=0,dist="Gauss",
                  scale = 1, n_links = 0): 
-       
+        
+        self.capacity = xx * yy
         self.size_x = xx
         self.size_y = yy
         self.x0 = int(xx/2)
@@ -106,6 +121,7 @@ class Net():
         self.k2 = k2
         self.beta = beta
         self.lambd = lambd
+        self.lambd_0= lambd
         self.max_range = Range(x0 = self.x0, y0 = self.y0)
         self.n_links = n_links
         
@@ -129,6 +145,9 @@ class Net():
         self.table_ZX = []
         self.table_ZY = []
         self.table_P = []
+        self.table_lambd = []
+        
+        self.bag_of_cells = []
 
 ################################################################################################################    
     def __repr__(self):
@@ -151,7 +170,6 @@ class Net():
         self.current_number_P = 0
 ################################################################################################################                    
  
-    # This is the key procedure that creates the network structure 
     def setup(self):    
         for xx in range(0, self.size_x):
             tmp = []
@@ -159,7 +177,6 @@ class Net():
                 tmp.append( Cell(xx, yy) )   
             self.cells.append(tmp)
                
-
     def init(self):  
         # CHECKING IF VOLUME OF THE NET IS BIG ENOUGH TO SET ALL GIVEN TUMOR AND CYTOTOXIC CELLS
         if (self.init_number_X + self.init_number_Y) > (self.size_x * self.size_y):
@@ -195,8 +212,7 @@ class Net():
                         self.cells[x_position][y_position].set_state(X_TUMOR)                     
                         self.max_range.set_new_value(x_position, y_position)
                         count = count +1
-        
-                               
+                                      
         # PLACE Y_CYTOTOXIC CELLS - predator 
         count = 0
         while (count < self.init_number_Y):
@@ -209,12 +225,19 @@ class Net():
         
         self.current_number_X = self.init_number_X
         self.current_number_Y = self.init_number_Y       
-        self.table_X.append(self.current_number_X )
-        self.table_Y.append(self.current_number_Y )
+        self.table_X.append(self.current_number_X)
+        self.table_Y.append(self.current_number_Y)
         self.table_ZX.append(self.current_number_ZX)
         self.table_ZY.append(self.current_number_ZY)
-        self.table_P.append(self.current_number_P )
+        self.table_P.append(self.current_number_P)
+        self.table_lambd.append(self.lambd)
         
+        for x in range (0, self.size_x ):
+            for y in range(0, self.size_y):    
+                 if (self.cells[x][y].get_state() != N_EMPTY):
+                        self.bag_of_cells.append( self.cells[x][y] )
+                        self.cells[x][y].put_in_bag()
+               
         # SET LINKS
         count = 0
         while (count < self.n_links): 
@@ -231,184 +254,131 @@ class Net():
                         self.cells[x2][y2].set_link(x1, y1)
                         count = count + 1     
                         self.list_of_links.append( [[x1, y1], [x2, y2] ] )
-                
-
-################################################################################################################                    
-        
-    def set_state(self, x, y, new_state):
-        self.cells[x][y].set_state(new_state) # checking if new stane is valid in cell.set_state()
-            
-    
-    def deepcopy(self, original_net):       
-        self.size_x =  original_net.size_x
-        self.size_y =  original_net.size_x
-        self.k1 =  original_net.k1
-        self.k2 = original_net.k2
-        self.beta = original_net.beta
-        self.lambd = original_net.lambd
-        
-        self.init_number_X =  original_net.init_number_X
-        self.init_number_Y =  original_net.init_number_Y
-                    
-        self.cells = deepcopy(original_net.cells)
-        self.list_of_links = deepcopy(original_net.list_of_links)
-                   
-        self.current_number_X = original_net.current_number_X
-        self.current_number_Y = original_net.current_number_Y
-        self.current_number_ZX = original_net.current_number_ZX
-        self.current_number_ZY = original_net.current_number_ZY
-        self.current_number_P = original_net.current_number_P       
-        
-        self.table_X = deepcopy(original_net.table_X)
-        self.table_Y = deepcopy(original_net.table_Y)
-        self.table_ZX = deepcopy(original_net.table_ZX)
-        self.table_ZY = deepcopy(original_net.table_ZY)
-        self.table_P = deepcopy(original_net.table_P)
         
 #########################################################################################################
+      
     def update(self):
-        tmp = deepcopy(self)
-        tmp.reset()
         
-        for x in range (0, self.size_x ):
-            for y in range(0, self.size_y):                
-                if (self.cells[x][y].get_state() == P_DEAD):
-                    tmp.cells[x][y].set_state( N_EMPTY )
-                    #tmp.cells[x][y].set_state( P_DEAD )
-                    #tmp.current_number_P = tmp.current_number_P + 1
-                    
+        #self.lambd = self.lambd_0 * (1 - self.current_number_X /self.capacity )
+
+        for cell in self.bag_of_cells:
+
+            if (cell.get_state() == P_DEAD):
+                cell.set_next_state(N_EMPTY) 
+
                 
-                elif (self.cells[x][y].is_empty() and tmp.cells[x][y].is_empty() ): 
-                    if (np.random.rand() < self.beta):
-                        tmp.cells[x][y].set_state( X_TUMOR )
-                        tmp.current_number_X = tmp.current_number_X + 1
-
-                    else:
-                        tmp.cells[x][y].set_state( N_EMPTY )
-
-#########################################################################################################
-# the cell was a X_TUMOR in the previous iteration and right now is ZX_IMMCOMPLEX or DEAD - skip
-# dead cells are in complex with its last partner. is_single == TRUE means that the cell is X_TUMOR or n_EMPTY
-# the cell was a X_TUMOR in the previous iteration and right now is X_TUMOR - do
-
-                elif (self.cells[x][y].get_state()== X_TUMOR and tmp.cells[x][y].is_single() ):
-                    tmp.cells[x][y].set_state( X_TUMOR )
-                    tmp.current_number_X = tmp.current_number_X + 1
+            elif (cell.get_state() == X_TUMOR and cell.get_next_state() !=  ZX_IMMCOMPLEX):
+                cell.set_next_state(X_TUMOR)
+                
+                if (np.random.rand() < self.lambd): # probability that tumor cell proliferate                     
+                    free_cells = []
+                    x,y = cell.get_coordinates()
                     
-                    if (np.random.rand() < self.lambd): # probability that tumor cell propagate  
-                        free_cells = []
-
-                        if x > 0:
-                            if self.cells[x -1][y].is_empty() and tmp.cells[x -1][y].is_single() :
-                                free_cells.append([x-1, y])
-                                
-                        if (x +1) < self.size_x:   
-                            if self.cells[x +1][y].is_empty()and tmp.cells[x +1][y].is_single():
-                                free_cells.append( [x+1, y])
-
-                        if y > 0:
-                            if self.cells[x][y-1].is_empty() and tmp.cells[x][y-1].is_single():
-                                free_cells.append( [x, y-1] )
-
-                        if (y+1) < self.size_y:
-                            if self.cells[x][y+1].is_empty() and tmp.cells[x][y+1].is_single():
-                                free_cells.append( [x, y+1] )                              
+                    if (x>0 and x+1 <self.size_x and y>0 and y+1 <self.size_y):
                         
-                        if (self.cells[x][y].is_unlinked() == False):
-                            x_link, y_link = self.cells[x][y].get_link()
-                            if(self.cells[x_link][y_link].is_empty() and tmp.cells[x_link][y_link].is_single() ):
-                                free_cells.append( [x_link, y_link] )
+                        if self.cells[x-1][y].is_empty():
+                            free_cells.append([x-1, y])
+                    
+                        if self.cells[x+1][y].is_empty():
+                            free_cells.append([x+1, y])
                         
-                        if len(free_cells) > 0:
+                        if self.cells[x][y-1].is_empty():
+                            free_cells.append( [x, y-1] )
+
+                        if self.cells[x][y+1].is_empty():
+                            free_cells.append( [x, y+1] )
+                            
+                        if self.cells[ cell.get_link()[0] ][cell.get_link()[1] ].is_empty():  
+                            free_cells.append( [cell.get_link()[0], cell.get_link()[1] ] ) 
+                                                                         
+                        if len(free_cells) > 0:      #  there is at least one empty cell in the neighbournood
                             index = np.random.randint(low = 0, high = len(free_cells) )
                             new_x = int(free_cells[ index ][0])
                             new_y = int(free_cells[ index ][1])
-                           
-                            tmp.cells[new_x][new_y].set_state( X_TUMOR )
-                            tmp.current_number_X = tmp.current_number_X + 1
-                            self.max_range.set_new_value(new_x, new_y)
-                    
-                        
-#########################################################################################################                
-# the cell was a Y_CYTOTOXIC in the previous iteration and right now is ZY_IMMCOMPLEX - skip
-# is_single == TRUE means that the cell is Y_CYTOTOXIC
-# the cell was a Y_CYTOTOXIC in the previous iteration and right now is Y_CYTOTOXIC - do sth
-   
-                elif (self.cells[x][y].get_state() == Y_CYTOTOXIC and tmp.cells[x][y].is_single()):
-                    tmp.cells[x][y].set_state( Y_CYTOTOXIC )
-                    tmp.current_number_Y = tmp.current_number_Y + 1
-
-                    if (np.random.rand() < self.k1): # probability that Y_CYTOTOXIC becomes a Z-compex 
-                        n = 0
-                        cancer_cells = []
-
-                        if x > 0:
-                            if self.cells[x-1][y].get_state() == X_TUMOR and tmp.cells[x-1][y].is_single():
-                                cancer_cells.append([x-1, y])
-                                n = n+1
-
-                        if (x +1) < self.size_x:   
-                            if self.cells[x+1][y].get_state() == X_TUMOR and tmp.cells[x+1][y].is_single():
-                                cancer_cells.append( [x+1, y])
-                                n = n+1
-
-                        if y > 0:
-                            if self.cells[x][y-1].get_state() == X_TUMOR and tmp.cells[x][y-1].is_single():
-                                cancer_cells.append( [x, y-1] )
-                                n = n+1
-
-                        if (y+1) < self.size_y:
-                            if self.cells[x][y+1].get_state() == X_TUMOR and tmp.cells[x][y+1].is_single():
-                                cancer_cells.append( [x, y+1] )
-                                n = n+1
-                                               
-                        if len(cancer_cells) > 0: # in the neighbournood there is at least one tumor cell
-                            index = np.random.randint(low = 0, high = len(cancer_cells) )
-                            new_x = int(cancer_cells[ index ][0])
-                            new_y = int(cancer_cells[ index ][1])
-                                             
-                            if tmp.cells[new_x][new_y].get_state() == X_TUMOR:
-                                tmp.current_number_X = tmp.current_number_X -1
-                                
-                            tmp.cells[new_x][new_y].set_state(ZX_IMMCOMPLEX) 
-                            tmp.cells[new_x][new_y].set_complex(x,y)                           
-                            tmp.current_number_ZX = tmp.current_number_ZX + 1                                 
                             
-                            tmp.cells[x][y].set_state(ZY_IMMCOMPLEX)
-                            tmp.cells[x][y].set_complex(new_x, new_y )
-                            tmp.current_number_Y = tmp.current_number_Y - 1         
-                            tmp.current_number_ZY = tmp.current_number_ZY + 1     
-            
-#########################################################################################################
-                elif (self.cells[x][y].get_state() == ZX_IMMCOMPLEX):
-                    tmp.cells[x][y].set_state(ZX_IMMCOMPLEX)
-                    tmp.current_number_ZX = tmp.current_number_ZX + 1
-                
-                    x_complex = int(tmp.cells[x][y].get_complex()[0] )
-                    y_complex = int(tmp.cells[x][y].get_complex()[1] )
-                             
-                    tmp.cells[x_complex][y_complex].set_state(ZY_IMMCOMPLEX)
-                    tmp.current_number_ZY = tmp.current_number_ZY + 1 
+                            self.cells[new_x][new_y].set_next_state(X_TUMOR)
+                            
+                            if self.cells[new_x][new_y].is_not_in_bag():
+                                self.bag_of_cells.append(self.cells[new_x][new_y])
+                                self.cells[new_x][new_y].put_in_bag()
+                            self.max_range.set_new_value(new_x, new_y)                           
+                                       
+            elif (cell.get_state() == Y_CYTOTOXIC): 
+                cell.set_next_state(Y_CYTOTOXIC)
+                cancer_cells = []                   
+                x,y = cell.get_coordinates()
                     
-                    if (np.random.rand() < self.k2):
-                        tmp.cells[x][y].set_state( P_DEAD )
-                        tmp.current_number_P = tmp.current_number_P + 1
-                        tmp.current_number_ZX = tmp.current_number_ZX - 1  
+                if (x>0 and x+1 <self.size_x and y>0 and y+1 <self.size_y):
                         
-                        tmp.cells[x_complex][y_complex].set_state( Y_CYTOTOXIC )
-                        tmp.current_number_Y = tmp.current_number_Y + 1
-                        tmp.current_number_ZY = tmp.current_number_ZY - 1
-                        tmp.cells[x_complex][y_complex].reset_complex()
+                    if self.cells[x-1][y].get_state() == X_TUMOR and self.cells[x-1][y].is_single():
+                        cancer_cells.append([x-1, y])
                     
-#########################################################################################################
-        self.deepcopy(tmp)       
-        self.table_X.append(self.current_number_X)
-        self.table_Y.append(self.current_number_Y)
+                    if self.cells[x+1][y].get_state() == X_TUMOR and self.cells[x+1][y].is_single():
+                        cancer_cells.append([x+1, y])
+                        
+                    if self.cells[x][y-1].get_state() == X_TUMOR and self.cells[x][y-1].is_single():
+                        cancer_cells.append( [x, y-1] )
+
+                    if self.cells[x][y+1].get_state() == X_TUMOR and self.cells[x][y+1].is_single():
+                        cancer_cells.append( [x, y+1] )
+                                               
+                    if len(cancer_cells) > 0: #  there is at least one tumor cell in the neighbournood
+                        index = np.random.randint(low = 0, high = len(cancer_cells) )
+                        new_x = int(cancer_cells[ index ][0])
+                        new_y = int(cancer_cells[ index ][1])
+                                  
+                        cell.set_next_state(ZY_IMMCOMPLEX)
+                        cell.set_complex(new_x, new_y)
+                        self.cells[new_x][new_y].set_next_state(ZX_IMMCOMPLEX)                                                  
+                        self.cells[new_x][new_y].set_complex(x,y)   
+                        
+                                                          
+            elif cell.get_state() == ZY_IMMCOMPLEX: 
+                
+                x,y = cell.get_complex()                                              
+                cell.set_next_state(Y_CYTOTOXIC)                
+                self.cells[x][y].set_next_state(P_DEAD)                 
+                cell.reset_complex()    
+                self.cells[x][y].reset_complex()
+                
+        self.current_number_X = 0
+        self.current_number_Y = 0
+        self.current_number_ZX = 0
+        self.current_number_ZY = 0
+        self.current_number_P = 0
+        
+        for cell in self.bag_of_cells:
+                
+            cell.update()
+                          
+            if cell.get_state() == X_TUMOR:
+                self.current_number_X = self.current_number_X + 1               
+            
+            elif cell.get_state() == Y_CYTOTOXIC:
+                self.current_number_Y = self.current_number_Y + 1                
+            
+            elif cell.get_state() == ZX_IMMCOMPLEX:
+                self.current_number_ZX = self.current_number_ZX + 1
+            
+            elif cell.get_state() == ZY_IMMCOMPLEX:
+                self.current_number_ZY = self.current_number_ZY + 1
+            
+            elif cell.get_state() == P_DEAD:
+                self.current_number_P = self.current_number_P + 1            
+        
+        print("X = ", self.current_number_X, "Y = ", self.current_number_Y, 
+              "ZX = ", self.current_number_ZX, "ZY = ", self.current_number_ZY,
+              "P = ", self.current_number_P)
+                
+        self.table_X.append(self.current_number_X )
+        self.table_Y.append(self.current_number_Y )
         self.table_ZX.append(self.current_number_ZX)
         self.table_ZY.append(self.current_number_ZY)
         self.table_P.append(self.current_number_P)
-           
-########################################################################################################    
+        self.table_lambd.append(self.lambd)
+    
+#########################################################################################################         
+#########################################################################################################    
     def show(self):
         print("\nsize X = {0:}\tsize Y = {1:}".format(self.size_x, self.size_x) )
         print("k1 ={0:}\tk2 = {1:}\tbeta = {2:}\tlambda = {3:}".format(self.k1, self.k2, self.beta, self.lambd) )
@@ -419,3 +389,6 @@ class Net():
         print("current range of tumor cells: {0:}".format(self.max_range))
         print("List of links")
         print(self.list_of_links)
+        
+########################################################################################################    
+ 

@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+from base import *
 from library import *
 
-#########################################################################################################
-#########################################################################################################
-
+################################################################################################################
 def get_header(size_x, size_y, c, init_X, init_Y, k1, k2, beta, lambd, n_links, n, k, dist, scale,
                 m_range, author, start_date, end_date):
             
@@ -34,16 +33,19 @@ def build(size_x, size_y, init_X, init_Y, k1, k2, beta, lambd, scale, dist, n_li
     m_range = np.power(m_range, 2)
     n_range = []
     t = 0
-        
+    
     for i in range(n):
-        net.update()
+        net.update() 
+        
         if (m_range[t] <  net.get_range()):
             n_range.append(i)
-            t = t+1
+            t = t+1          
         if  net.get_range() > limit**2 :
+            while(len(n_range)!= len(m_range) ):
+                n_range.append(i)
             break
- 
-    return n_range, net.table_X, net.table_Y, net.table_ZX, net.table_P
+    
+    return n_range, net.table_X, net.table_Y, net.table_ZX, net.table_ZY, net.table_P, net.table_lambd, net.get_range()       
 
 ################################################################################################################
 ################################################################################################################
@@ -61,8 +63,10 @@ def save(header, savefile, data):
     print("Saved to file:\t", savefile)
     
     return
+
 ################################################################################################################
 ################################################################################################################
+
 def save_maximum(header, savefile, data):
 
     file = open(savefile, 'w')
@@ -76,5 +80,5 @@ def save_maximum(header, savefile, data):
     print("Saved to file:\t", savefile)
 
     return
-################################################################################################################
+
 ################################################################################################################
