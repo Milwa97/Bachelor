@@ -24,11 +24,11 @@ if __name__ == '__main__':
     author = "Mlewandowska"   
     
     savefile = sys.argv[1] 
-    limit = 150
+    limit = 210
 
     start_date = datetime.now().strftime("%Y-%m-%d %H:%M")
 
-    m_range = [0,5,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150]            
+    m_range = [0,5,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210]            
         
     n_range_tab = []
     max_range_tab = []
@@ -55,14 +55,14 @@ if __name__ == '__main__':
     header = get_header(size_x, size_y, c, init_X, init_Y, k1, k2, beta, lambd, n_links, n, k, dist, scale, m_range, author, start_date, end_date)   
     
             
-    savefile_n = str(savefile + ".txt")
-    savefile_X = str(savefile + "_X.txt")
-    savefile_Y = str(savefile + "_Y.txt")
-    savefile_ZX = str(savefile + "_ZX.txt")
-    savefile_ZY = str(savefile + "_ZY.txt")
-    savefile_P = str(savefile + "_P.txt")
-    savefile_lambd = str(savefile + "_lambd.txt")
-    savefile_max = str(savefile + "_max.txt")
+    savefile_n = str(savefile + ".csv")
+    savefile_X = str(savefile + "_X.csv")
+    savefile_Y = str(savefile + "_Y.csv")
+    savefile_ZX = str(savefile + "_ZX.csv")
+    savefile_ZY = str(savefile + "_ZY.csv")
+    savefile_P = str(savefile + "_P.csv")
+    savefile_lambd = str(savefile + "_lambd.csv")
+    savefile_max = str(savefile + "_max.csv")
     
     save(header, savefile_n, n_range_tab)  
     save(header, savefile_X, X_tab)

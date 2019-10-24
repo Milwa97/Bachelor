@@ -260,6 +260,7 @@ class Net():
     def update(self):
         
         #self.lambd = self.lambd_0 * (1 - self.current_number_X /self.capacity )
+	#print("self.lambd = ", self.lambd)
 
         for cell in self.bag_of_cells:
 
@@ -307,8 +308,8 @@ class Net():
                 cell.set_next_state(Y_CYTOTOXIC)
                 cancer_cells = []                   
                 x,y = cell.get_coordinates()
-                    
-                if (x>0 and x+1 <self.size_x and y>0 and y+1 <self.size_y):
+                
+                if ( np.random.rand() < self.k1 and x>0 and x+1 <self.size_x and y>0 and y+1 <self.size_y):
                         
                     if self.cells[x-1][y].get_state() == X_TUMOR and self.cells[x-1][y].is_single():
                         cancer_cells.append([x-1, y])

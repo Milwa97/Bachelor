@@ -12,7 +12,7 @@ def get_header(size_x, size_y, c, init_X, init_Y, k1, k2, beta, lambd, n_links, 
     line1 = "date:\t{0:}\t{1:}\n".format(start_date, end_date)
     line2 = "concentration = {0:}, size: {1:}x{2:}\n".format(c, size_x, size_y)
     line3 = "distribution: {0:}\tscale: {1:}\n".format(dist, scale)
-    line4 = "init_number_X = {0:}, init_number_Y = {1:}\n".format(init_X, init_Y)
+    line4 = "init_number_X = {0:}, init_number_Y = {1:}, n_links = {2:}\n".format(init_X, init_Y,n_links)
     line5 = "k1 = {0:}, k2 = {1:}, beta = {2:}, lambd = {3:}\n".format(k1,k2,beta,lambd)
     line6 = "number of simulations k = {0:}, number of iterations n = {1:}\n".format(k, n)
     line7 = "range sampling: {0:}\n\n".format(m_range)
